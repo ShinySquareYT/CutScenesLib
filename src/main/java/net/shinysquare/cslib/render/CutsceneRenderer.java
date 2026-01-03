@@ -90,34 +90,67 @@ public class CutsceneRenderer {
      */
     private void renderCutscene(GuiGraphics graphics, CutscenePlayer cutscenePlayer, float partialTick) {
         PoseStack poseStack = graphics.pose();
-        
-        // Get current frame and camera state
-        CutsceneFrame currentFrame = cutscenePlayer.getCurrentFrame();
-        CameraPath.CameraState cameraState = cutscenePlayer.getCameraState();
-        
-        if (currentFrame == null) {
-            return;
-        }
+        net.shinysquare.cslib.cutscene.Cutscene cutscene = cutscenePlayer.getCutscene();
         
         // Fill screen with black background
         int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
         graphics.fill(0, 0, screenWidth, screenHeight, 0xFF000000);
         
+        // Handle External Camera Config
+        CameraPath.CameraState cameraState = cutscenePlayer.getCameraState();
+        if (cutscene.getCameraConfigLocation() != null && cutscene.getCameraPath() == null) {
+            // Load camera config if not already loaded
+            net.minecraft.server.packs.resources.ResourceManager rm = Minecraft.getInstance().getResourceManager();
+            cutscene.setCameraPath(net.shinysquare.cslib.loader.CutsceneLoader.loadCameraConfig(rm, cutscene.getCameraConfigLocation()));
+        }
+        
         poseStack.pushPose();
         
         // Set up 3D rendering space
         setupCamera(poseStack, cameraState, screenWidth, screenHeight);
         
-        // Render all entities in the frame
-        for (CutsceneFrame.FrameEntity entity : currentFrame.getEntities()) {
-            renderEntity(graphics, entity, cutscenePlayer.getPlayer());
+        // Render all models in the scene (Scene Composition)
+        for (net.shinysquare.cslib.cutscene.SceneModel model : cutscene.getModels()) {
+            renderSceneModel(graphics, model, cutscenePlayer.getPlayer(), cutscenePlayer.getCurrentTime());
         }
         
         poseStack.popPose();
         
         // Render progress bar at bottom
         renderProgressBar(graphics, cutscenePlayer, screenWidth, screenHeight);
+    }
+
+    /**
+     * Render a Blockbench model in the scene
+     */
+    private void renderSceneModel(GuiGraphics graphics, net.shinysquare.cslib.cutscene.SceneModel model, Player player, float time) {
+        PoseStack poseStack = graphics.pose();
+        poseStack.pushPose();
+        
+        // Apply base transformations
+        Vector3f pos = model.getPosition();
+        poseStack.translate(pos.x * 20, pos.y * 20, pos.z * 20);
+        
+        Vector3f rot = model.getRotation();
+        poseStack.mulPose(org.joml.Quaternionf.fromAxisAngleDeg(1, 0, 0, rot.x));
+        poseStack.mulPose(org.joml.Quaternionf.fromAxisAngleDeg(0, 1, 0, rot.y));
+        poseStack.mulPose(org.joml.Quaternionf.fromAxisAngleDeg(0, 0, 1, rot.z));
+        
+        Vector3f scale = model.getScale();
+        poseStack.scale(scale.x, scale.y, scale.z);
+        
+        // In a full implementation, this would:
+        // 1. Load the Blockbench JSON geometry
+        // 2. Apply the animation for the current 'time'
+        // 3. For each part, call skinMapper.getTextureForPart()
+        // 4. Render the cubes
+        
+        // Placeholder: Render a box representing the model
+        int color = model.isUsePlayerSkin() ? 0xFFFFAAAA : 0xFF888888;
+        graphics.fill(-10, -10, 10, 10, color);
+        
+        poseStack.popPose();
     }
     
     /**

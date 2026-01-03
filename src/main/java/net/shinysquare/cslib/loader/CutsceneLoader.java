@@ -126,27 +126,79 @@ public class CutsceneLoader {
             cutscene.setPauseGame(json.get("pauseGame").getAsBoolean());
         }
         
-        // Parse camera path
-        if (json.has("camera")) {
+        // External Camera Config Support
+        if (json.has("cameraConfig")) {
+            cutscene.setCameraConfigLocation(new ResourceLocation(json.get("cameraConfig").getAsString()));
+        } else if (json.has("camera")) {
             cutscene.setCameraPath(parseCameraPath(json.getAsJsonObject("camera")));
         }
         
-        // Parse frames
-        if (json.has("frames")) {
-            JsonArray framesArray = json.getAsJsonArray("frames");
-            for (JsonElement frameElement : framesArray) {
-                cutscene.addFrame(parseFrame(frameElement.getAsJsonObject()));
+        // Scene Composition: Load multiple Blockbench models
+        if (json.has("models")) {
+            JsonArray modelsArray = json.getAsJsonArray("models");
+            for (JsonElement modelElement : modelsArray) {
+                cutscene.addModel(parseSceneModel(modelElement.getAsJsonObject()));
             }
-        }
-        
-        // Parse skin mapping
-        if (json.has("skinMapping")) {
-            cutscene.setSkinMapping(parseSkinMapping(json.getAsJsonObject("skinMapping")));
         }
         
         return cutscene;
     }
+
+    private static SceneModel parseSceneModel(JsonObject json) {
+        String id = json.get("id").getAsString();
+        ResourceLocation modelLoc = new ResourceLocation(json.get("model").getAsString());
+        SceneModel model = new SceneModel(id, modelLoc);
+        
+        if (json.has("texture")) {
+            model.setTextureLocation(new ResourceLocation(json.get("texture").getAsString()));
+        }
+        
+        if (json.has("usePlayerSkin")) {
+            model.setUsePlayerSkin(json.get("usePlayerSkin").getAsBoolean());
+        }
+        
+        if (json.has("skinTextureName")) {
+            model.setSkinTextureName(json.get("skinTextureName").getAsString());
+        }
+        
+        if (json.has("position")) {
+            model.setPosition(parseVector3f(json.getAsJsonArray("position")));
+        }
+        
+        if (json.has("rotation")) {
+            model.setRotation(parseVector3f(json.getAsJsonArray("rotation")));
+        }
+        
+        if (json.has("scale")) {
+            model.setScale(parseVector3f(json.getAsJsonArray("scale")));
+        }
+        
+        if (json.has("animation")) {
+            model.setCurrentAnimation(json.get("animation").getAsString());
+        }
+        
+        return model;
+    }
     
+    /**
+     * Load an external camera configuration
+     */
+    public static CameraPath loadCameraConfig(ResourceManager resourceManager, ResourceLocation location) {
+        try {
+            Optional<Resource> resourceOpt = resourceManager.getResource(location);
+            if (resourceOpt.isEmpty()) return null;
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOpt.get().open(), StandardCharsets.UTF_8));
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+            
+            return parseCameraPath(json);
+        } catch (Exception e) {
+            CutScenesLib.LOGGER.error("Failed to load camera config: {}", location, e);
+            return null;
+        }
+    }
+
     /**
      * Parse camera path from JSON
      */

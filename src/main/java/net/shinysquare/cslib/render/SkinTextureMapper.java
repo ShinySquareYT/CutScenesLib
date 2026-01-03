@@ -77,24 +77,21 @@ public class SkinTextureMapper {
     }
     
     /**
-     * Render an entity with player skin applied
+     * Get the texture to use for a specific model part
      * 
-     * @param graphics The GUI graphics context
-     * @param entity The entity to render
-     * @param player The player whose skin to use
+     * @param model The scene model being rendered
+     * @param textureName The name of the texture in the model
+     * @param player The player watching the cutscene
+     * @return The resource location of the texture to use
      */
-    public void renderWithPlayerSkin(GuiGraphics graphics, CutsceneFrame.FrameEntity entity, Player player) {
-        ResourceLocation skinTexture = getPlayerSkin(player);
-        
-        // For now, render a simple representation
-        // In a full implementation, this would apply the skin texture to a 3D model
-        
-        String model = entity.getModel();
-        if ("player".equals(model)) {
-            renderPlayerModel(graphics, skinTexture);
-        } else {
-            renderGenericModel(graphics, skinTexture);
+    public ResourceLocation getTextureForPart(SceneModel model, String textureName, Player player) {
+        // If this model uses player skin and this texture matches the skin texture name
+        if (model.isUsePlayerSkin() && textureName.equals(model.getSkinTextureName())) {
+            return getPlayerSkin(player);
         }
+        
+        // Otherwise use the model's default texture
+        return model.getTextureLocation();
     }
     
     /**

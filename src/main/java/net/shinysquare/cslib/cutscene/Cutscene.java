@@ -31,22 +31,37 @@ public class Cutscene {
     /** Whether to pause the game during playback */
     private boolean pauseGame;
     
-    /** The camera path for this cutscene */
+    /** The camera path for this cutscene (can be loaded from external camera.json) */
     private CameraPath cameraPath;
     
-    /** List of keyframes containing animation data */
-    private List<CutsceneFrame> frames;
+    /** List of models in this scene (Blockbench models) */
+    private List<SceneModel> models;
     
-    /** Skin mapping configuration */
-    private SkinMapping skinMapping;
+    /** Resource location for external camera config */
+    private ResourceLocation cameraConfigLocation;
     
     /**
      * Create a new cutscene
      */
     public Cutscene() {
-        this.frames = new ArrayList<>();
-        this.pauseGame = true; // Default to pausing
-        this.skinMapping = new SkinMapping();
+        this.models = new ArrayList<>();
+        this.pauseGame = true;
+    }
+
+    public List<SceneModel> getModels() {
+        return models;
+    }
+
+    public void addModel(SceneModel model) {
+        this.models.add(model);
+    }
+
+    public ResourceLocation getCameraConfigLocation() {
+        return cameraConfigLocation;
+    }
+
+    public void setCameraConfigLocation(ResourceLocation cameraConfigLocation) {
+        this.cameraConfigLocation = cameraConfigLocation;
     }
     
     // Getters and setters
