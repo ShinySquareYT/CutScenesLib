@@ -25,3 +25,10 @@ type="required"
 versionRange="[1.21.1,1.22)"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.cslib]]
+modId="geckolib"
+type="required"
+versionRange="[4.6.1,)"
+ordering="NONE"
+side="BOTH"

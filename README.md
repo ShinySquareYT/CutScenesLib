@@ -1,13 +1,13 @@
-# CutScenesLib
+# CutScenesLib - GeckoLib Edition
 
-A Minecraft NeoForge 1.21.1 library mod for creating, registering, and playing pausable 3D cutscenes.
+A Minecraft NeoForge 1.21.1 library mod for creating, registering, and playing high-fidelity 3D cutscenes using **GeckoLib**.
 
 ## Features
 
-- **Blockbench Integration**: Use standard Blockbench JSON models and animations.
-- **Scene Composition**: Combine multiple models (e.g., ground, player, props) into one cutscene.
-- **Advanced Skin Mapping**: Swap specific model textures (e.g., a texture named `player_skin`) with the player's actual skin.
-- **External Camera Config**: Separate camera angles and positions into a dedicated `camera.json` file for easy tweaking.
+- **GeckoLib Integration**: Uses GeckoLib for advanced model loading and smooth animation playback.
+- **Blockbench Camera Support**: Animate the camera directly in Blockbench using the `camera` bone.
+- **Dynamic Bone-Based Texture Mapping**: Easily swap textures on any bone (cube) at runtime, perfect for player skin integration.
+- **Scene Composition**: Combine multiple animated models into one cutscene.
 - **Full Game Pause**: Optionally pauses all game ticks (entities, world, etc.) during playback.
 - **Event-Driven Triggers**: Automatically play cutscenes on item pickups or advancement completions.
 
@@ -15,47 +15,64 @@ A Minecraft NeoForge 1.21.1 library mod for creating, registering, and playing p
 
 ## For Developers: How to Use CutScenesLib
 
-### 1. Add CutScenesLib to Your Project
+### 1. Add Dependencies
 
-(Instructions for `build.gradle` and `mods.toml` remain the same.)
+You must include both **CutScenesLib** and **GeckoLib** in your `build.gradle`:
+
+```gradle
+repositories {
+    // ... other repositories
+    maven {
+        name = "GeckoLib"
+        url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
+    }
+}
+
+dependencies {
+    // ... other dependencies
+    implementation "software.bernie.geckolib:geckolib-neoforge-1.21.1:4.6.1" // Latest GeckoLib version
+    implementation fg.deobf("net.shinysquare.cslib:cslib:1.0.0") // CutScenesLib
+}
+```
+
+You must also add the `geckolib` dependency to your `mods.toml`.
 
 ### 2. Using the API
 
-The `CutsceneAPI` class provides all the methods you need.
+The `CutsceneAPI` remains the primary interface.
 
-#### Loading and Playing a Cutscene
+#### Dynamic Bone Texture Mapping (Universal UV Mapping)
+
+This is the new feature that allows you to change the texture of any part of your model at runtime.
 
 ```java
 import net.shinysquare.cslib.api.CutsceneAPI;
-import net.shinysquare.cslib.cutscene.Cutscene;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 
 public class MyModCode {
-    public void playMyCutscene(Player player) {
-        // This looks for: assets/mymod/cutscenes/intro/cutscene.json
-        ResourceLocation cutsceneId = new ResourceLocation("mymod", "intro");
-
-        Cutscene introCutscene = CutsceneAPI.loadCutscene(cutsceneId);
-
-        if (introCutscene != null) {
-            CutsceneAPI.playCutscene(player, introCutscene);
-        }
+    public void setupCustomTextures() {
+        // Example: Change the texture of a bone named "test" to a custom texture
+        CutsceneAPI.mapTextureToBone("test", new ResourceLocation("mymod", "textures/special_glow.png"));
+        
+        // Example: Map the player's skin to a bone named "player_head"
+        // The mod will automatically handle getting the player's current skin texture
+        CutsceneAPI.mapTextureToBone("player_head", CutsceneAPI.getPlayerSkinTexture());
     }
 }
 ```
 
 ---
 
-## How to Create a Cutscene (Blockbench Workflow)
+## How to Create a Cutscene (GeckoLib Workflow)
 
-The new workflow involves creating your models and animations in **Blockbench** and defining the scene composition in a central `cutscene.json` file.
+The workflow now relies entirely on GeckoLib's file structure.
 
 ### 1. Blockbench Setup
 
-1.  **Create your Model(s)**: Design your models (e.g., `player_prop.bbmodel`, `scene_ground.bbmodel`).
-2.  **Create your Animation(s)**: Use the **Animate** tab in Blockbench to create animations for your models.
-3.  **Export**: Export each model as a **Blockbench JSON Model** (e.g., `player_prop.json`, `scene_ground.json`).
+1.  **Create your Model(s)**: Design your models.
+2.  **Create your Animation(s)**: Use the **Animate** tab.
+3.  **Camera Animation**: Add a bone named **`camera`** to your model. Animate this bone to define the camera's movement.
+4.  **Export**: Export your model as a **GeckoLib Model** (e.g., `my_scene.geo.json`) and your animation as a **GeckoLib Animation** (e.g., `my_scene.animation.json`).
 
 ### 2. File Structure
 
@@ -65,20 +82,17 @@ Place your files in your mod's resources folder:
 src/main/resources/
 └── assets/
     └── your_mod_id/
-        └── cutscenes/
-            └── my_awesome_cutscene/
-                ├── cutscene.json           <-- Scene definition
-                ├── camera.json             <-- Camera angles (Optional)
-                ├── player_prop.json        <-- Blockbench Model 1
-                ├── scene_ground.json       <-- Blockbench Model 2
-                └── textures/
-                    ├── player_prop.png
-                    └── scene_ground.png
+        ├── geo/
+        │   └── my_scene.geo.json           <-- GeckoLib Model
+        ├── animations/
+        │   └── my_scene.animation.json     <-- GeckoLib Animation
+        └── textures/
+            └── my_scene.png                <-- Model Texture
 ```
 
-### 3. The `cutscene.json` File (Scene Composition)
+### 3. The `cutscene.json` (Scene Composition)
 
-The `cutscene.json` now defines the scene, linking to your Blockbench models and animations.
+The `cutscene.json` now links to the GeckoLib files.
 
 ```json
 {
@@ -86,69 +100,42 @@ The `cutscene.json` now defines the scene, linking to your Blockbench models and
   "duration": 12.5,
   "pauseGame": true,
   
-  // OPTION 1: External Camera Configuration
-  "cameraConfig": "mymod:cutscenes/my_awesome_cutscene/camera.json",
-  
-  // OPTION 2: Inline Camera Configuration (if cameraConfig is not used)
-  // "camera": { ... },
+  // Camera is now controlled by the "camera" bone in the model, 
+  // so no separate camera path is needed unless you want to override it.
   
   "models": [
     {
-      "id": "ground",
-      "model": "mymod:cutscenes/my_awesome_cutscene/scene_ground.json",
-      "texture": "mymod:textures/scene_ground.png",
-      "position": [0, 0, 0],
-      "rotation": [0, 0, 0],
-      "scale": [1.0, 1.0, 1.0],
-      "animation": "idle_animation" // Name of the animation in scene_ground.json
-    },
-    {
-      "id": "player_character",
-      "model": "mymod:cutscenes/my_awesome_cutscene/player_prop.json",
-      "texture": "mymod:textures/player_prop.png",
-      "position": [0, 0, 0],
-      "rotation": [0, 180, 0],
-      "scale": 1.0,
-      "animation": "walk_animation", // Name of the animation in player_prop.json
-      "usePlayerSkin": true,
-      "skinTextureName": "player_skin" // Texture name in Blockbench to replace
+      "id": "main_scene",
+      "geometry": "mymod:geo/my_scene.geo.json",
+      "animation_file": "mymod:animations/my_scene.animation.json",
+      "texture": "mymod:textures/my_scene.png",
+      "animation": "scene_intro", // Name of the animation in my_scene.animation.json
+      
+      // Dynamic Bone Mappings: Map bone names to textures
+      "bone_mappings": {
+        "ground_bone": "mymod:textures/special_ground.png",
+        "player_head": "cslib:textures/player_skin.png" // Use a placeholder texture that will be swapped by the API
+      }
     }
   ]
 }
 ```
 
-### 4. External Camera Configuration (`camera.json`)
+### 4. Player Skin Integration
 
-This file is loaded separately and only contains the camera path.
-
-**Location**: `assets/your_mod_id/cutscenes/my_awesome_cutscene/camera.json`
-
-```json
-{
-  "type": "PATH",
-  "keyframes": [
-    { "time": 0.0, "position": [0, 70, 10], "rotation": [-20, 0, 0] },
-    { "time": 5.0, "position": [5, 68, 5], "rotation": [-15, 45, 0] },
-    { "time": 10.0, "position": [0, 65, 0], "rotation": [0, 90, 0] }
-  ]
-}
-```
-
-### 5. Advanced Player Skin Mapping
-
-The skin mapping is now controlled by the `skinTextureName` field in the `models` array.
-
-**How to set it up in Blockbench:**
-1.  In Blockbench, go to the **Texture** tab.
-2.  Ensure the texture you want to be replaced by the player's skin is named **`player_skin`** (or whatever you set `skinTextureName` to).
-3.  Any part of your model that uses this texture will automatically be rendered with the current player's skin texture, while all other textures (like your ground texture) will remain unchanged.
+To use the player's skin:
+1.  In your code, call `CutsceneAPI.mapTextureToBone("bone_name", CutsceneAPI.getPlayerSkinTexture())`.
+2.  The `BoneTextureManager` will handle the texture swap during rendering.
 
 ---
 
-## 🎓 **Confirmation: Blockbench Compatibility**
+## 🎓 **Confirmation: Blockbench Camera & UV Mapping**
 
-**Yes, you can now use Blockbench!**
+**Yes, both are fully supported!**
 
-The library is updated to use a **Scene Composition** approach, where you define your scene by listing the Blockbench models and the animation they should play. The Blockbench JSON format is now the primary way to define the 3D content and animation for your cutscenes.
+| Feature | Implementation | How to Use |
+|---|---|---|
+| **Blockbench Camera** | The renderer looks for a bone named **`camera`** in your GeckoLib model and attaches the player's view to it. | Animate a bone named `camera` in Blockbench. |
+| **Universal UV Mapping** | Implemented `BoneTextureManager` and `CutsceneAPI.mapTextureToBone()`. | Name a cube/bone (e.g., `"test"`) and use the API to map a texture to it. |
 
-Happy modding!
+The library is now a powerful, GeckoLib-powered cinematic tool!

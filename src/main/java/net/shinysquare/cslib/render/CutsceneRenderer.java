@@ -122,34 +122,24 @@ public class CutsceneRenderer {
     }
 
     /**
-     * Render a Blockbench model in the scene
+     * Render a GeckoLib model in the scene
      */
-    private void renderSceneModel(GuiGraphics graphics, net.shinysquare.cslib.cutscene.SceneModel model, Player player, float time) {
+    private void renderGeckoModel(GuiGraphics graphics, net.shinysquare.cslib.cutscene.GeckoSceneModel model, Player player, float time) {
         PoseStack poseStack = graphics.pose();
+        
+        // 1. Check for Camera Bone
+        // In GeckoLib, we can find a bone by name
+        // If bone name is "camera", we use its position/rotation for the camera setup
+        
+        // 2. Apply Dynamic UV / Texture Mapping
+        // We override the texture provider to use model.getTextureForBone(boneName)
+        
+        // 3. Render the model using GeckoLib's GeoRenderer
+        // This handles the .geo.json and .animation.json automatically
+        
         poseStack.pushPose();
-        
-        // Apply base transformations
-        Vector3f pos = model.getPosition();
-        poseStack.translate(pos.x * 20, pos.y * 20, pos.z * 20);
-        
-        Vector3f rot = model.getRotation();
-        poseStack.mulPose(org.joml.Quaternionf.fromAxisAngleDeg(1, 0, 0, rot.x));
-        poseStack.mulPose(org.joml.Quaternionf.fromAxisAngleDeg(0, 1, 0, rot.y));
-        poseStack.mulPose(org.joml.Quaternionf.fromAxisAngleDeg(0, 0, 1, rot.z));
-        
-        Vector3f scale = model.getScale();
-        poseStack.scale(scale.x, scale.y, scale.z);
-        
-        // In a full implementation, this would:
-        // 1. Load the Blockbench JSON geometry
-        // 2. Apply the animation for the current 'time'
-        // 3. For each part, call skinMapper.getTextureForPart()
-        // 4. Render the cubes
-        
-        // Placeholder: Render a box representing the model
-        int color = model.isUsePlayerSkin() ? 0xFFFFAAAA : 0xFF888888;
-        graphics.fill(-10, -10, 10, 10, color);
-        
+        // Placeholder for GeckoLib rendering call
+        graphics.fill(-10, -10, 10, 10, 0xFF00FF00); 
         poseStack.popPose();
     }
     

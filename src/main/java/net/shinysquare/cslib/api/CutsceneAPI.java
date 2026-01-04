@@ -151,4 +151,14 @@ public class CutsceneAPI {
             .getCutsceneManager()
             .stopCutscene(player);
     }
+    
+    /**
+     * Map a specific bone name to a texture globally for all cutscenes
+     * 
+     * @param boneName The name of the bone in Blockbench (e.g., "test")
+     * @param texture The texture to apply to this bone
+     */
+    public static void mapTextureToBone(String boneName, ResourceLocation texture) {
+        net.shinysquare.cslib.render.BoneTextureManager.mapTextureToBone(boneName, texture);
+    }
 }

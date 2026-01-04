@@ -144,37 +144,24 @@ public class CutsceneLoader {
         return cutscene;
     }
 
-    private static SceneModel parseSceneModel(JsonObject json) {
+    private static GeckoSceneModel parseGeckoModel(JsonObject json) {
         String id = json.get("id").getAsString();
-        ResourceLocation modelLoc = new ResourceLocation(json.get("model").getAsString());
-        SceneModel model = new SceneModel(id, modelLoc);
+        ResourceLocation geo = new ResourceLocation(json.get("geometry").getAsString());
+        ResourceLocation anim = new ResourceLocation(json.get("animation_file").getAsString());
+        ResourceLocation tex = new ResourceLocation(json.get("texture").getAsString());
         
-        if (json.has("texture")) {
-            model.setTextureLocation(new ResourceLocation(json.get("texture").getAsString()));
-        }
-        
-        if (json.has("usePlayerSkin")) {
-            model.setUsePlayerSkin(json.get("usePlayerSkin").getAsBoolean());
-        }
-        
-        if (json.has("skinTextureName")) {
-            model.setSkinTextureName(json.get("skinTextureName").getAsString());
-        }
-        
-        if (json.has("position")) {
-            model.setPosition(parseVector3f(json.getAsJsonArray("position")));
-        }
-        
-        if (json.has("rotation")) {
-            model.setRotation(parseVector3f(json.getAsJsonArray("rotation")));
-        }
-        
-        if (json.has("scale")) {
-            model.setScale(parseVector3f(json.getAsJsonArray("scale")));
-        }
+        GeckoSceneModel model = new GeckoSceneModel(id, geo, anim, tex);
         
         if (json.has("animation")) {
             model.setCurrentAnimation(json.get("animation").getAsString());
+        }
+        
+        // Dynamic UV / Texture Mapping
+        if (json.has("bone_mappings")) {
+            JsonObject mappings = json.getAsJsonObject("bone_mappings");
+            for (String boneName : mappings.keySet()) {
+                model.mapTextureToBone(boneName, new ResourceLocation(mappings.get(boneName).getAsString()));
+            }
         }
         
         return model;
