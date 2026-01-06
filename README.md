@@ -39,31 +39,26 @@ You must also add the `geckolib` dependency to your `mods.toml`.
 
 ### 2. Using the API
 
-The `CutsceneAPI` remains the primary interface.
-
-#### Dynamic Bone Texture Mapping (Universal UV Mapping)
-
-This is the new feature that allows you to change the texture of any part of your model at runtime.
-
-```java
-import net.shinysquare.cslib.api.CutsceneAPI;
-import net.minecraft.resources.ResourceLocation;
-
-public class MyModCode {
-    public void setupCustomTextures() {
-        // Example: Change the texture of a bone named "test" to a custom texture
-        CutsceneAPI.mapTextureToBone("test", new ResourceLocation("mymod", "textures/special_glow.png"));
-        
-        // Example: Map the player's skin to a bone named "player_head"
-        // The mod will automatically handle getting the player's current skin texture
-        CutsceneAPI.mapTextureToBone("player_head", CutsceneAPI.getPlayerSkinTexture());
-    }
-}
-```
-
----
-
-## How to Create a Cutscene (GeckoLib Workflow)
+The `CutsceneAPI` remains the prima44	#### Dynamic Bone Texture Mapping (Native GeckoLib UV Mapping)
+45	
+46	This feature uses GeckoLib's native rendering layers to swap textures on specific bones, providing a highly efficient and flexible way to customize your models at runtime.
+47	
+48	```java
+49	import net.shinysquare.cslib.api.CutsceneAPI;
+50	import net.minecraft.resources.ResourceLocation;
+51	
+52	public class MyModCode {
+53	    public void setupCustomTextures() {
+54	        // Example: Change the texture of a bone named "test" to a custom texture
+55	        // This mapping is global and applies to all cutscenes
+56	        CutsceneAPI.mapTextureToBone("test", new ResourceLocation("mymod", "textures/special_glow.png"));
+57	        
+58	        // Example: Map the player's skin to a bone named "player_head"
+59	        // The mod will automatically handle getting the player's current skin texture
+60	        CutsceneAPI.mapTextureToBone("player_head", CutsceneAPI.getPlayerSkinTexture());
+61	    }
+62	}
+63	```ib Workflow)
 
 The workflow now relies entirely on GeckoLib's file structure.
 

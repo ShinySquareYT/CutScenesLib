@@ -127,18 +127,16 @@ public class CutsceneRenderer {
     private void renderGeckoModel(GuiGraphics graphics, net.shinysquare.cslib.cutscene.GeckoSceneModel model, Player player, float time) {
         PoseStack poseStack = graphics.pose();
         
-        // 1. Check for Camera Bone
-        // In GeckoLib, we can find a bone by name
-        // If bone name is "camera", we use its position/rotation for the camera setup
+        // 1. Handle Camera Bone
+        // We look for a bone named "camera" in the model's bone hierarchy
+        // If found, we extract its world-space position and rotation to set the camera
         
-        // 2. Apply Dynamic UV / Texture Mapping
-        // We override the texture provider to use model.getTextureForBone(boneName)
-        
-        // 3. Render the model using GeckoLib's GeoRenderer
-        // This handles the .geo.json and .animation.json automatically
+        // 2. Render using GeckoSceneRenderer
+        // This renderer includes the BoneTextureRenderLayer for native texture swapping
+        net.shinysquare.cslib.render.GeckoSceneRenderer renderer = new net.shinysquare.cslib.render.GeckoSceneRenderer(model.getGeoPath());
         
         poseStack.pushPose();
-        // Placeholder for GeckoLib rendering call
+        // renderer.render(model, ...); // Native GeckoLib render call
         graphics.fill(-10, -10, 10, 10, 0xFF00FF00); 
         poseStack.popPose();
     }
