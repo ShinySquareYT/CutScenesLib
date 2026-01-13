@@ -1,0 +1,34 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+modId="cslib"
+version="1.0.0"
+displayName="CutScenesLib"
+authors="ShinySquare"
+description='''
+A library mod for creating pausable 3D cutscenes in Minecraft.
+Provides API for other mods to register and play cutscenes with player skin integration.
+'''
+
+[[dependencies.cslib]]
+modId="neoforge"
+type="required"
+versionRange="[21.1,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.cslib]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.22)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.cslib]]
+modId="geckolib"
+type="required"
+versionRange="[4.6.1,)"
+ordering="NONE"
+side="BOTH"

@@ -1,0 +1,91 @@
+{
+  "name": "Example Intro Cutscene",
+  "duration": 10.0,
+  "pauseGame": true,
+  "camera": {
+    "type": "PATH",
+    "keyframes": [
+      {
+        "time": 0.0,
+        "position": [0, 5, 10],
+        "rotation": [0, 0, 0]
+      },
+      {
+        "time": 5.0,
+        "position": [5, 5, 5],
+        "rotation": [0, 45, 0]
+      },
+      {
+        "time": 10.0,
+        "position": [10, 5, 0],
+        "rotation": [0, 90, 0]
+      }
+    ]
+  },
+  "frames": [
+    {
+      "time": 0.0,
+      "entities": [
+        {
+          "id": "player1",
+          "model": "player",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "scale": 1.0,
+          "usePlayerSkin": true
+        },
+        {
+          "id": "cube1",
+          "model": "cube",
+          "position": [3, 1, 0],
+          "rotation": [0, 0, 0],
+          "scale": [0.5, 0.5, 0.5]
+        }
+      ]
+    },
+    {
+      "time": 5.0,
+      "entities": [
+        {
+          "id": "player1",
+          "model": "player",
+          "position": [2, 0, 0],
+          "rotation": [0, 90, 0],
+          "scale": 1.0,
+          "usePlayerSkin": true
+        },
+        {
+          "id": "cube1",
+          "model": "cube",
+          "position": [3, 2, 0],
+          "rotation": [45, 45, 0],
+          "scale": [0.5, 0.5, 0.5]
+        }
+      ]
+    },
+    {
+      "time": 10.0,
+      "entities": [
+        {
+          "id": "player1",
+          "model": "player",
+          "position": [5, 0, 0],
+          "rotation": [0, 180, 0],
+          "scale": 1.0,
+          "usePlayerSkin": true
+        }
+      ]
+    }
+  ],
+  "skinMapping": {
+    "enabled": true,
+    "zones": [
+      {
+        "name": "player_face",
+        "entityId": "player1",
+        "skinUV": [8, 8, 16, 16],
+        "modelUV": [0.0, 0.0, 1.0, 1.0]
+      }
+    ]
+  }
+}
